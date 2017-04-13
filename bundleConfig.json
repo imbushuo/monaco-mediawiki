@@ -20,5 +20,16 @@
       "renameLocals": false
     },
     "sourceMap": true
+  },
+  {
+    "outputFileName": "release/MonacoProxyStub.min.js",
+    "inputFiles": [
+        "MonacoProxyStub.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": false
+    },
+    "sourceMap": true
   }
 ]
