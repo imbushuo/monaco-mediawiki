@@ -1,0 +1,25 @@
+{
+  "name": "mg-monacoloader",
+  "version": "1.0.0",
+  "description": "Moegirlpedia Monaco Editor Loader",
+  "main": "Monaco.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "monaco",
+    "editor",
+    "mediawiki"
+  ],
+  "author": "Bingxing Wang",
+  "license": "MIT",
+  "devDependencies": {
+    "gulp-sourcemaps": "^2.6.0",
+    "gulp-uglify": "^2.1.2",
+    "@types/jquery": "^2.0.41",
+    "@types/requirejs": "^2.1.29",
+    "gulp": "^3.9.1",
+    "gulp-minify": "0.0.15",
+    "monaco-editor": "^0.8.3"
+  }
+}
