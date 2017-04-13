@@ -182,16 +182,11 @@ module MwMonaco {
          * Creates editor host div element.
          */
         private createEditorHost(): HTMLDivElement {
-            // Toolbar
-            var editorToolbar = document.createElement("div");
-            editorToolbar.id = "editorToolbar";
-            editorToolbar.style.cssText = "width:100%;height:36px;background: rgb(37,37,38);";
-            $("#wpTextbox1").after(editorToolbar);
             // Container
             var editorContainer = document.createElement("div");
             editorContainer.id = "editorContainer";
             editorContainer.style.cssText = "width:100%;height:500px;";
-            $(editorToolbar).after(editorContainer);
+            $("#wpTextbox1").after(editorContainer);
             // Hide textarea
             $("#wpTextbox1").hide();
             return editorContainer;
