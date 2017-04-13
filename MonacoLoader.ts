@@ -41,13 +41,15 @@ module MwMonaco {
         private m_hostControl: HTMLDivElement;
         private m_textAreaControl: HTMLTextAreaElement;
         private m_editorControl: monaco.editor.IStandaloneCodeEditor;
+        private m_diffEditorControl: monaco.editor.IStandaloneDiffEditor;
 
         private m_docType: string;
         private m_userOptions: IMonacoUserConfiguration;
 
         private m_docPrefix: string;
         private m_docExtension: string;
-        
+        private m_title: string;
+        private m_originalContent: string;
 
         /**
          * Constructor that creates new instance of MonacoLoader.
@@ -91,6 +93,7 @@ module MwMonaco {
                         const prefixQualifierPos = currentTitle.indexOf(':');
                         this.m_docPrefix = currentTitle.substring(0, prefixQualifierPos);
                         this.m_docExtension = currentTitle.substring(lastDotPos);
+                        this.m_title = currentTitle;
 
                         if (MonacoLoader.g_prefixMapping[this.m_docPrefix]) {
                             complete(MonacoLoader.g_prefixMapping[this.m_docPrefix]);
@@ -217,14 +220,67 @@ module MwMonaco {
         }
 
         /**
+         * Flush editor content to actual form text input control.
+         */
+        private flushEditor(): void {
+            if (this.m_editorControl) {
+                // Flush content
+                $("#wpTextbox1").val(this.m_editorControl.getModel().getValue());
+            }
+        }
+
+        /**
+         * Set up editor actions.
+         */
+        private setupActions(): void {
+            this.m_editorControl.addAction({
+                id: 'save-action',
+                label: 'Save changes',
+                keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.F7],
+                keybindingContext: null,
+                contextMenuGroupId: 'mediawikiActions',
+                contextMenuOrder: 1,
+                run: (ed) => {
+                    this.flushEditor();
+                    $("#editform").submit();
+                }
+            });
+            this.m_editorControl.addAction({
+                id: 'diff-toggle-action',
+                label: 'Compare with current',
+                contextMenuGroupId: 'mediawikiActions',
+                contextMenuOrder: 2,
+                run: (ed) => {
+                    this.initializeDiffEditor();
+                }
+            })
+        }
+
+        private setupDiffActions(): void {
+             this.m_diffEditorControl.addAction({
+                id: 'save-action',
+                label: 'Save changes',
+                keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.F7],
+                keybindingContext: null,
+                contextMenuGroupId: 'mediawikiActions',
+                contextMenuOrder: 1,
+                run: (ed) => {
+                    this.flushEditor();
+                    $("#editform").submit();
+                }
+            });
+        }
+
+        /**
          * Initialize editor control.
          */
-        initialize() : void {
+        initialize(): void {
             if (!MonacoLoader.determineAvailability()) return;
             this.checkTitleExtensionAsync().then((docType: string) => {
                 this.m_docType = docType;
                 this.m_hostControl = this.createEditorHost();
                 this.loadReferenceLibrariesAsync().then(() => {
+                    this.m_originalContent = this.m_textAreaControl.value;
                     this.m_editorControl = monaco.editor.create(this.m_hostControl, {
                         value: this.m_textAreaControl.value,
                         language: this.m_docType,
@@ -233,15 +289,48 @@ module MwMonaco {
                         automaticLayout: true
                     });
 
+                    // Save content every 5 seconds
+                    window.setInterval(() => this.flushEditor(), 5000);
+
                     // Register event for submission
                     $("#editform").submit((e) => {
                         // Flush content
-                        $("#wpTextbox1").val(this.m_editorControl.getModel().getValue());
+                        this.flushEditor();
                     });
+
+                    // Set up actions
+                    this.setupActions();
                 });
             });
         }
 
+        /**
+         * Initialize diff editor
+         */
+        private initializeDiffEditor(): void {
+            if (this.m_originalContent) {
+                // Flush and dispose current editor
+                this.flushEditor();
+                this.m_editorControl.dispose();
+                this.m_editorControl = null;
+
+                // Reset container
+                $(this.m_hostControl).empty();
+
+                // Load diff editor
+                this.m_diffEditorControl = monaco.editor.createDiffEditor(this.m_hostControl, {
+                    fontFamily: this.getFontFamily(),
+                    automaticLayout: true,
+                    theme: this.getTheme()
+                });
+                this.m_diffEditorControl.setModel({
+                    original: monaco.editor.createModel(this.m_originalContent, this.m_docType),
+                    modified: monaco.editor.createModel(this.m_textAreaControl.value, this.m_docType)
+                });
+                this.m_editorControl = this.m_diffEditorControl.getModifiedEditor();
+                this.setupDiffActions();
+            }
+        }
     }
 
     export interface IMonacoLoaderConstructionOptions {
