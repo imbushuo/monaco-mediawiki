@@ -80,8 +80,38 @@ declare module mw {
         toString(): string;
     }
 
-    interface IUriConstructorOptions
-    {
+    export class Api {
+        constructor(options?: IApiConstructorOptions);
+
+        abort(): void;
+        ajax(parameters: any, ajaxOptions?: any): JQueryPromise<any>;
+        badToken(type: string): void;
+        create(title: string, params: IApiCreatePageParams, content: string): JQueryPromise<any>;
+        edit(title: string, transform: (revision: any) => any): JQueryPromise<any>;
+        get(parameters: any, ajaxOptions?: any): JQueryPromise<any>;
+        getCategories(title: string): JQueryPromise<any>;
+        getCategoriesByPrefix(prefix: string): JQueryPromise<IApiGetCategoriesByPrefixResponse>;
+        getEditToken(): JQueryPromise<any>;
+        getMessages(messages: any[], options?: any): JQueryPromise<any>;
+        // More to come
+        
+    }
+
+    interface IApiConstructorOptions {
+        parameters: any;
+        ajax: any;
+        useUS: boolean;
+    }
+
+    interface IApiCreatePageParams {
+        summary: string;
+    }
+
+    interface IApiGetCategoriesByPrefixResponse {
+        categories: string[];
+    }
+
+    interface IUriConstructorOptions {
         strictMode?: boolean;
         overrideKeys?: boolean;
     }

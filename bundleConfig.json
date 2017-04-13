@@ -31,5 +31,16 @@
       "renameLocals": false
     },
     "sourceMap": true
+  },
+  {
+    "outputFileName": "release/MediaWikiIntelliSense.min.js",
+    "inputFiles":[ 
+      "MediaWikiIntelliSense.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": false
+    },
+    "sourceMap": true
   }
 ]

@@ -133,6 +133,7 @@ module MwMonaco {
         private loadReferenceLibrariesAsync(): monaco.Promise<boolean> {
             return new monaco.Promise<boolean>((complete, error, progress) => {
                 switch (this.m_docType) {
+                    // IntelliSense library reference for scripts
                     case "javascript":
                     case "typescript":
                         console.info("Loading references for script editor.");
@@ -146,6 +147,26 @@ module MwMonaco {
                             });
                             complete(true);
                         }, () => complete(false));
+                        break;
+                    // IntelliSense module reference
+                    case "plaintext":
+                        $.getScript("/User:imbushuo/MonacoEditor/MediaWikiIntelliSense.min.js?action=raw&ctype=text/javascript", 
+                        function (data, textStatus, jqxhr) {
+                            const mwAutoCompletionSource = new MwMonacoExtension.TitleAutoCompletionSource();
+                            monaco.languages.registerCompletionItemProvider("plaintext", {
+                                provideCompletionItems: (model, position) => {
+                                    const textUntilPosition = model.getValueInRange({startLineNumber: 1, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column});
+		                            const match = mwAutoCompletionSource.matchRule.exec(textUntilPosition); 
+                                    if (match && match.length > 1) {
+                                        // We should have two, pass the second one to create a Thenable object
+                                        return mwAutoCompletionSource.getCandidateItemsAsync(match[1]);
+                                    }
+
+                                    return [];
+                                }
+                            });
+                            complete(true);
+                        }).fail(() => complete(false));
                         break;
                     default:
                         complete(true);
