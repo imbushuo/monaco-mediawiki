@@ -1,0 +1,24 @@
+[
+  {
+    "outputFileName": "release/MonacoLoader.min.js",
+    "inputFiles": [
+      "MonacoLoader.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "release/LoaderBootstrap.min.js",
+    "inputFiles": [
+        "LoaderBootstrap.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": false
+    },
+    "sourceMap": true
+  }
+]
