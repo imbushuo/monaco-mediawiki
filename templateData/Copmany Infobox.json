@@ -1,0 +1,174 @@
+{
+	"description": "适用于公司、组织、社团的介绍上。",
+	"params": {
+		"会社名称": {
+			"label": "会社名称",
+			"type": "string",
+			"required": true,
+			"suggested": true,
+			"deprecated": false,
+			"description": ""
+		},
+		"image": {
+			"label": "image",
+			"type": "string/wiki-file-name",
+			"required": false,
+			"suggested": true,
+			"deprecated": false,
+			"description": "用于展示的图片 (Logo)"
+		},
+		"图片大小": {
+			"label": "图片大小",
+			"type": "string",
+			"required": false,
+			"suggested": false,
+			"deprecated": false,
+			"description": "展示的图片大小。默认为 250px。",
+			"default": "250px"
+		},
+		"图片信息": {
+			"label": "图片信息",
+			"type": "string",
+			"required": false,
+			"suggested": false,
+			"deprecated": false,
+			"description": "图片的描述性文字。"
+		},
+		"会社别名": {
+			"label": "会社别名",
+			"type": "string",
+			"required": false,
+			"suggested": false,
+			"deprecated": false,
+			"description": ""
+		},
+		"会社类型": {
+			"label": "会社类型",
+			"type": "string",
+			"required": false,
+			"suggested": false,
+			"deprecated": false,
+			"description": "公司业务类型。"
+		},
+		"前身": {
+			"label": "前身",
+			"type": "string",
+			"required": false,
+			"suggested": false,
+			"deprecated": false,
+			"description": ""
+		},
+		"后继": {
+			"label": "后继",
+			"type": "string",
+			"required": false,
+			"suggested": false,
+			"deprecated": false,
+			"description": ""
+		},
+		"成立时间": {
+			"label": "成立时间",
+			"type": "string",
+			"required": false,
+			"suggested": false,
+			"deprecated": false,
+			"description": "公司成立的时间。"
+		},
+		"结束时间": {
+			"label": "结束时间",
+			"type": "string",
+			"required": false,
+			"suggested": false,
+			"deprecated": false,
+			"description": "公司停止运营的时间。"
+		},
+		"总部地址": {
+			"label": "总部地址",
+			"type": "string",
+			"required": false,
+			"suggested": false,
+			"deprecated": false,
+			"description": "公司总部地址。"
+		},
+		"母公司": {
+			"label": "母公司",
+			"type": "string",
+			"required": false,
+			"suggested": false,
+			"deprecated": false,
+			"description": ""
+		},
+		"子公司": {
+			"label": "子公司",
+			"type": "string",
+			"required": false,
+			"suggested": false,
+			"deprecated": false,
+			"description": ""
+		},
+		"主要作品": {
+			"label": "主要作品",
+			"type": "string",
+			"required": false,
+			"suggested": false,
+			"deprecated": false,
+			"description": ""
+		},
+		"创办人": {
+			"label": "创办人",
+			"type": "string",
+			"required": false,
+			"suggested": false,
+			"deprecated": false,
+			"description": "公司创办人。"
+		},
+		"相关人物": {
+			"label": "相关人物",
+			"type": "string",
+			"required": false,
+			"suggested": false,
+			"deprecated": false,
+			"description": "公司相关人物。"
+		},
+		"相关会社": {
+			"label": "相关会社",
+			"type": "string",
+			"required": false,
+			"suggested": false,
+			"deprecated": false,
+			"description": ""
+		},
+		"网址": {
+			"label": "网址",
+			"type": "string",
+			"required": false,
+			"suggested": false,
+			"deprecated": false,
+			"description": "公司网址。"
+		},
+		"标题颜色": {
+			"label": "标题颜色",
+			"type": "string",
+			"required": false,
+			"suggested": false,
+			"deprecated": false,
+			"description": ""
+		},
+		"左栏颜色": {
+			"label": "左栏颜色",
+			"type": "string",
+			"required": false,
+			"suggested": false,
+			"deprecated": false,
+			"description": ""
+		},
+		"标题字体颜色": {
+			"label": "标题字体颜色",
+			"type": "string",
+			"required": false,
+			"suggested": false,
+			"deprecated": false,
+			"description": ""
+		}
+	}
+}
