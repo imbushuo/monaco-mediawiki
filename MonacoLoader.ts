@@ -156,13 +156,20 @@ module MwMonaco {
                         $.getScript("/User:imbushuo/MonacoEditor/MediaWikiIntelliSense.min.js?action=raw&ctype=text/javascript", 
                         function (data, textStatus, jqxhr) {
                             const mwAutoCompletionSource = new MwMonacoExtension.TitleAutoCompletionSource();
+                            const mwTmplAutoCompletionSource = new MwMonacoExtension.TemplateAutoCompletionSource();
                             monaco.languages.registerCompletionItemProvider("plaintext", {
                                 provideCompletionItems: (model, position) => {
                                     const textUntilPosition = model.getValueInRange({startLineNumber: 1, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column});
-		                            const match = mwAutoCompletionSource.matchRule.exec(textUntilPosition); 
+		                            let match = mwAutoCompletionSource.matchRule.exec(textUntilPosition); 
                                     if (match && match.length > 1) {
                                         // We should have two, pass the second one to create a Thenable object
                                         return mwAutoCompletionSource.getCandidateItemsAsync(match[1]);
+                                    } else {
+                                        // For template reference
+                                        match = mwTmplAutoCompletionSource.matchRule.exec(textUntilPosition);
+                                        if (match && match.length > 1) {
+                                            return mwTmplAutoCompletionSource.getCandidateItemsAsync(match[1]);
+                                        }
                                     }
 
                                     return [];
@@ -243,6 +250,8 @@ module MwMonaco {
             this.m_editorControl.addAction({
                 id: 'diff-toggle-action',
                 label: 'Compare with current',
+                keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_D],
+                keybindingContext: null,
                 contextMenuGroupId: 'mediawikiActions',
                 contextMenuOrder: 2,
                 run: (ed) => {
