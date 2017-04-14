@@ -3,6 +3,7 @@ module MwMonacoExtension {
     export class TitleAutoCompletionSource implements ICompletionSource {
 
         private m_matchRule: RegExp = /\[\[([^|\n]*)$/;
+        private static g_searchService = "https://misaka.ink.moe/webproxy.php";
 
         get matchRule(): RegExp {
             return this.m_matchRule;
@@ -10,34 +11,34 @@ module MwMonacoExtension {
 
         getCandidateItemsAsync(input: string): monaco.Promise<monaco.languages.CompletionItem[]> {
             return new monaco.Promise<monaco.languages.CompletionItem[]>((complete, error, progress) => {
-                // Input should be santized.
-                mw.loader.using("mediawiki.api").then(() => {
-                    const apiQuery = new mw.Api();
-                    const pageResults = apiQuery.get({
-                        action: "query",
-                        format: "json",
-                        list: "allpages",
-                        utf8: 1,
-                        formatversion: 2,
-                        apprefix: input,
-                        aplimit: 20
-                    }).then(response => {
-                        const completionItems: monaco.languages.CompletionItem[] = [];
-                        if (response.query && response.query.allpages) {
-                            (response.query.allpages as any[]).forEach(p => {
-                                completionItems.push({
-                                    documentation: "",
-                                    label: p.title,
-                                    insertText: p.title,
-                                    kind: monaco.languages.CompletionItemKind.Field
-                                });
+                // Input should be santized. But anyway we will pass it to search engine.
+                $.ajax({
+                    url: TitleAutoCompletionSource.g_searchService,
+                    data: {
+                        action: "opensearch",
+                        search: input
+                    },
+                    cache: true,
+                    dataType: "json"
+                }).then(data => {
+                    // Take second array (index = 1) and the last array (index = 3).
+                    const arrCandidates = data[1] as string[];
+                    const arrCandidateLinks = data[3] as string[];
+                    const autoCompletionItems: monaco.languages.CompletionItem[] = [];
+                    if (arrCandidates.length >= arrCandidateLinks.length) {
+                        for (let i = 0; i < arrCandidates.length; i++) {
+                            const candidate = arrCandidates[i];
+                            const link = arrCandidateLinks[i];
+                            autoCompletionItems.push({
+                                insertText: candidate,
+                                label: candidate,
+                                detail: link,
+                                kind: monaco.languages.CompletionItemKind.Field
                             });
-                            complete(completionItems);
                         }
-                    }, () => {
-                        error([]);
-                    });
-                });
+                    }
+                    complete(autoCompletionItems);
+                }, () => complete([]));
             });
         }
 
