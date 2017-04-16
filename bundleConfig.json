@@ -24,7 +24,7 @@
   {
     "outputFileName": "release/MonacoProxyStub.min.js",
     "inputFiles": [
-        "MonacoProxyStub.js"
+        "languageServices/MonacoProxyStub.js"
     ],
     "minify": {
       "enabled": true,
@@ -35,7 +35,7 @@
   {
     "outputFileName": "release/MediaWikiIntelliSense.min.js",
     "inputFiles":[ 
-      "MediaWikiIntelliSense.js"
+      "languageServices/MediaWikiIntelliSense.js"
     ],
     "minify": {
       "enabled": true,

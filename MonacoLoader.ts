@@ -42,6 +42,7 @@ module MwMonaco {
         private m_textAreaControl: HTMLTextAreaElement;
         private m_editorControl: monaco.editor.IStandaloneCodeEditor;
         private m_diffEditorControl: monaco.editor.IStandaloneDiffEditor;
+        private m_linter: MwMonacoExtension.LinkLinter;
 
         private m_docType: string;
         private m_userOptions: IMonacoUserConfiguration;
@@ -60,6 +61,9 @@ module MwMonaco {
 
             this.m_textAreaControl = textAreaControl;
             this.m_docType = "markdown";
+
+            // Register language.
+            monaco.languages.register({ id: 'mediawiki' });
 
             if ((window as any).monacoUserConfig) {
                 this.m_userOptions = <IMonacoUserConfiguration> (window as any).monacoUserConfig;
@@ -100,7 +104,7 @@ module MwMonaco {
                         } else if (MonacoLoader.g_extMapping[this.m_docExtension]) {
                             complete(MonacoLoader.g_extMapping[this.m_docExtension]);
                         } else {
-                            complete("plaintext");
+                            complete("mediawiki");
                         }
                     } else {
                         error("Unable to load title");
@@ -152,12 +156,14 @@ module MwMonaco {
                         }, () => complete(false));
                         break;
                     // IntelliSense module reference
-                    case "plaintext":
+                    case "mediawiki":
+                        // Load initial highlight.
+                        this.setupMediaWikiHighlight();
                         $.getScript("/User:imbushuo/MonacoEditor/MediaWikiIntelliSense.min.js?action=raw&ctype=text/javascript", 
                         function (data, textStatus, jqxhr) {
                             const mwAutoCompletionSource = new MwMonacoExtension.TitleAutoCompletionSource();
                             const mwTmplAutoCompletionSource = new MwMonacoExtension.TemplateAutoCompletionSource();
-                            monaco.languages.registerCompletionItemProvider("plaintext", {
+                            monaco.languages.registerCompletionItemProvider("mediawiki", {
                                 provideCompletionItems: (model, position) => {
                                     const textUntilPosition = model.getValueInRange({startLineNumber: 1, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column});
 		                            let match = mwAutoCompletionSource.matchRule.exec(textUntilPosition); 
@@ -206,7 +212,7 @@ module MwMonaco {
             if (this.m_userOptions && this.m_userOptions.theme) {
                 return this.m_userOptions.theme;
             } else {
-                return "vs-dark";
+                return "vs";
             }
         }
 
@@ -260,6 +266,9 @@ module MwMonaco {
             })
         }
 
+        /**
+         * Set up diff editor.
+         */
         private setupDiffActions(): void {
              this.m_diffEditorControl.addAction({
                 id: 'save-action',
@@ -276,6 +285,19 @@ module MwMonaco {
         }
 
         /**
+         * Set up MediaWiki highlight.
+         * TODO: Move it to extension module.
+         */
+        private setupMediaWikiHighlight() : void {
+            if (MwMonacoExtension.MediaWikiTokenizer) {
+                monaco.languages.setMonarchTokensProvider('mediawiki', new MwMonacoExtension.MediaWikiTokenizer());
+                console.info("MediaWiki Monarch token provider is set.");
+            } else {
+                console.info("MediaWiki Monarch token provider is NOT loaded.");
+            }
+        }
+
+        /**
          * Initialize editor control.
          */
         initialize(): void {
@@ -285,12 +307,25 @@ module MwMonaco {
                 this.m_hostControl = this.createEditorHost();
                 this.loadReferenceLibrariesAsync().then(() => {
                     this.m_originalContent = this.m_textAreaControl.value;
+                    monaco.editor.defineTheme("localTheme", {
+                        base: this.getTheme() as monaco.editor.BuiltinTheme,
+                        inherit: true,
+                        rules: [
+                            { token: 'bold', fontStyle: 'bold' },
+                            { token: 'bold.quote', fontStyle: 'bold' },
+                            { token: 'italic', fontStyle: 'italic' },
+                            { token: 'italic.quote', fontStyle: 'italic' }
+                        ]
+                    });
+                    
                     this.m_editorControl = monaco.editor.create(this.m_hostControl, {
                         value: this.m_textAreaControl.value,
                         language: this.m_docType,
-                        theme: this.getTheme(),
+                        theme: "localTheme",
                         fontFamily: this.getFontFamily(),
-                        automaticLayout: true
+                        automaticLayout: true,
+                        // Enable word wrap for wikitext currently
+                        wordWrap: this.m_docType === "mediawiki"
                     });
 
                     // Save content every 5 seconds
@@ -304,6 +339,11 @@ module MwMonaco {
 
                     // Set up actions
                     this.setupActions();
+
+                    // Test lint
+                    if (MwMonacoExtension.LinkLinter && this.m_docType === "mediawiki") {
+                        this.m_linter = new MwMonacoExtension.LinkLinter(this.m_editorControl);
+                    }
                 });
             });
         }
@@ -325,7 +365,9 @@ module MwMonaco {
                 this.m_diffEditorControl = monaco.editor.createDiffEditor(this.m_hostControl, {
                     fontFamily: this.getFontFamily(),
                     automaticLayout: true,
-                    theme: this.getTheme()
+                    theme: "localTheme",
+                    // Enable word wrap for wikitext currently
+                    wordWrap: this.m_docType === "mediawiki"
                 });
                 this.m_diffEditorControl.setModel({
                     original: monaco.editor.createModel(this.m_originalContent, this.m_docType),
