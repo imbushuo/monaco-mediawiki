@@ -40,7 +40,6 @@ module MwMonacoExtension.LanguageServices {
                 editor.onDidChangeModelContent(e => {
                     clearTimeout(this.m_hTimer);
                     this.m_hTimer = setTimeout(() => this.validate(), 500);
-                    console.info("Validation is scheduled.");
                 });
             } else {
                 throw new Error("Arg_ArgumentNullException");
@@ -55,8 +54,6 @@ module MwMonacoExtension.LanguageServices {
          * Performs validation.
          */
         validate(): void {
-            // Log
-            console.info("Start validation.");
             // Clear state
             let rootState: shared.ControlBlockEnvironment = new shared.ControlBlockEnvironment(false, 0);
             monaco.editor.setModelMarkers(this.m_editorModel, "LinkLinter", []);
@@ -80,7 +77,8 @@ module MwMonacoExtension.LanguageServices {
                         endLineNumber: this.currentState.beginLine,
                         // -2 + 1, Monaco starts from 1
                         startColumn: this.currentState.beginColumn - 1,
-                        endColumn: lineContent.length,
+                        // + 1
+                        endColumn: lineContent.length + 1,
                         severity: monaco.Severity.Error
                     });
                     // Clear error state.
@@ -89,7 +87,6 @@ module MwMonacoExtension.LanguageServices {
             }
 
             monaco.editor.setModelMarkers(this.m_editorModel, "LinkLinter", this.m_validationMarkups);
-            console.info("Completed validation. " + this.m_validationMarkups.length + " error(s) found.");
         }
 
         /**
