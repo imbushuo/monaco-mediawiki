@@ -42,7 +42,7 @@ module MwMonaco {
         private m_textAreaControl: HTMLTextAreaElement;
         private m_editorControl: monaco.editor.IStandaloneCodeEditor;
         private m_diffEditorControl: monaco.editor.IStandaloneDiffEditor;
-        private m_linter: MwMonacoExtension.LinkLinter;
+        private m_linter: MwMonacoExtension.LanguageServices.LinkLinter;
 
         private m_docType: string;
         private m_userOptions: IMonacoUserConfiguration;
@@ -341,8 +341,8 @@ module MwMonaco {
                     this.setupActions();
 
                     // Test lint
-                    if (MwMonacoExtension.LinkLinter && this.m_docType === "mediawiki") {
-                        this.m_linter = new MwMonacoExtension.LinkLinter(this.m_editorControl);
+                    if (MwMonacoExtension.LanguageServices.LinkLinter && this.m_docType === "mediawiki") {
+                        this.m_linter = new MwMonacoExtension.LanguageServices.LinkLinter(this.m_editorControl);
                     }
                 });
             });

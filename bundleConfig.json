@@ -42,5 +42,19 @@
       "renameLocals": false
     },
     "sourceMap": true
+  },
+  {
+    "outputFileName": "release/LinkLinter.min.js",
+    "inputFiles":[
+      "languageServices/shared/Sections.js",
+      "languageServices/shared/BlockEnvironment.js",
+      "languageServices/shared/Match.js",
+      "languageServices/lint/LinkLinter.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": true
   }
 ]
