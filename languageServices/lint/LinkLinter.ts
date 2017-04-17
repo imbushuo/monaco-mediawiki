@@ -48,6 +48,9 @@ module MwMonacoExtension.LanguageServices {
             this.m_lastPopBlk = null;
             this.m_stCtrlBlkEnv = [];
             this.m_validationMarkups = [];
+
+            // Run a validation
+            this.validate();
         }
 
         /**
