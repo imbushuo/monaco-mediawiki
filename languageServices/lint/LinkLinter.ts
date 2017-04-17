@@ -65,7 +65,7 @@ module MwMonacoExtension.LanguageServices {
             this.m_lastPopBlk = null;
             this.m_stCtrlBlkEnv.push(rootState);
 
-            for (let line: number = 0; line < this.m_editorModel.getLineCount(); line++) {
+            for (let line: number = 1; line <= this.m_editorModel.getLineCount(); line++) {
                 const lineContent = this.m_editorModel.getLineContent(line);
                 if (!lineContent) continue;
 

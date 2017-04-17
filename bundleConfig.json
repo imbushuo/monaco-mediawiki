@@ -44,7 +44,7 @@
     "sourceMap": true
   },
   {
-    "outputFileName": "release/LinkLinter.min.js",
+    "outputFileName": "release/LinkLinter.js",
     "inputFiles":[
       "languageServices/shared/Sections.js",
       "languageServices/shared/BlockEnvironment.js",
