@@ -2,26 +2,23 @@ module MwMonacoExtension {
 
     export class MediaWikiTokenizer implements monaco.languages.IMonarchLanguage {
 
+        ignorecase: boolean = true;
+
+        empty: string[] =  [
+            'area', 'base', 'basefont', 'br', 'col', 'frame',
+            'hr', 'img', 'input', 'isindex', 'link', 'meta', 'param'
+        ];
+
+        // escape codes for javascript/CSS strings
+        escapes: RegExp = /\\(?:[btnfr\\"']|[0-7][0-7]?|[0-3][0-7]{2})/;
+
         tokenizer: { [name: string]: monaco.languages.IMonarchLanguageRule[]; } = {
             root: [
+                { include: '@whitespace' },
                 // Link reference
                 [ /\[\[/, {
                     token: "string.quote", bracket: "@open",
                     next: "@linkref_blk"
-                }],
-                // Template variable
-                [ /{{{(.*)}}}/, "identifier"],
-                // Parser function reference
-                [
-                    /{{#/, {
-                        token: "type.identifier", bracket: "@open",
-                        next: "@pfnRef_blk"
-                    }
-                ],
-                // Template reference
-                [ /{{/, {
-                    token: "type.identifier", bracket: "@open",
-                    next: "@tmplRef_blk"
                 }],
                 // Bold
                 [ /'''/, {
@@ -33,48 +30,16 @@ module MwMonacoExtension {
                     token: 'italic.quote', bracket: '@open',
                     next: '@italic_blk'
                 }],
-                // HTML-style Comment
-                [ /<!--.*-->/, "comment"],
-                // Widget namespace
-                [ /<script\s*>/, {
-                    token: 'keyword', bracket: '@open',
-                    next: '@script_blk', nextEmbedded: 'javascript'
+                // HTML-Style blocks
+                [/<(\w+)\/>/, 'tag.tag-$1'],
+                [/<(\w+)/, {
+                    cases: {
+                        '@empty': { token: 'tag.tag-$1', next: '@tag.$1', log: 'Push stack to tag.$1' },
+                        '@default': { token: 'tag.tag-$1', bracket: '@open', next: '@tag.$1', log: 'Push stack to tag.$1, bracket open' }
+                    }
                 }],
-                [ /<\/script\s*>/, { 
-                    token: 'keyword', bracket: '@close'
-                }],
-                [ /<style\s*>/, {
-                    token: 'keyword', bracket: '@open',
-                    next: '@css_blk', nextEmbedded: 'css'
-                }],
-                [ /<\/style\s*>/, { 
-                    token: 'keyword', bracket: '@close'
-                }],
-                // MediaWiki tags
-                [ /<noinclude\s*>/, { 
-                    token: 'keyword', bracket: '@open' 
-                }],
-                [ /<\/noinclude\s*>/, { 
-                    token: 'keyword', bracket: '@close'
-                }],
-                [ /<includeonly\s*>/, { 
-                    token: 'keyword', bracket: '@open' 
-                }],
-                [ /<\/includeonly\s*>/, { 
-                    token: 'keyword', bracket: '@close'
-                }],
-                [ /<nowiki\s*>/, { 
-                    token: 'keyword', bracket: '@open' 
-                }],
-                [ /<\/nowiki\s*>/, { 
-                    token: 'keyword', bracket: '@close'
-                }]
-            ],
-            script_blk: [
-                [ /<\/script\s*>/, { token: '@rematch', next: '@pop', nextEmbedded: '@pop' } ]
-            ],
-            css_blk: [
-                [ /<\/style\s*>/, { token: '@rematch', next: '@pop', nextEmbedded: '@pop' } ]
+                [/<\/(\w+)\s*>/, { token: 'tag.tag-$1', bracket: '@close', log: 'Close bracket of tag.$1' }],
+                [/&\w+;/, 'string.escape']
             ],
             bold_blk: [
                 [ /'''/, { token: "bold.quote", bracket: "@close", next: "@pop" } ],
@@ -88,41 +53,59 @@ module MwMonacoExtension {
                 [ /\]\]/, { token: "string.quote", bracket: "@close", next: "@pop" } ],
                 [ /[^\]\]]+/, { token: "string" } ]
             ],
-            tmplRef_blk: [
-                [ /\[\[/, {
-                    token: "string.quote", bracket: "@open",
-                    next: "@linkref_blk"
-                }],
-                [
-                    /{{#/, {
-                        token: "type.identifier", bracket: "@open",
-                        next: "@pfnRef_blk"
+            // Tags
+            tag: [
+                [/[ \t\r\n]+/, 'white'],
+                [/(type)(\s*=\s*)(")([^"]+)(")/, ['attribute.name', 'delimiter', 'attribute.value',
+                    { token: 'attribute.value', switchTo: '@tag.$S2.$4' },
+                    'attribute.value']],
+                [/(type)(\s*=\s*)(')([^']+)(')/, ['attribute.name', 'delimiter', 'attribute.value',
+                    { token: 'attribute.value', switchTo: '@tag.$S2.$4' },
+                    'attribute.value']],
+                [/(\w+)(\s*=\s*)("[^"]*"|'[^']*')/, ['attribute.name', 'delimiter', 'attribute.value']],
+                [/\w+/, 'attribute.name'],
+                [/\/>/, 'tag.tag-$S2', '@pop'],
+                [/>/, {
+                    cases: {
+                        '$S2==style': { token: 'tag.tag-$S2', switchTo: '@inlineStyle.$S2', nextEmbedded: 'text/css', log: 'Entering CSS section ($S2)' },
+                        '$S2==script': {
+                            cases: {
+                                '$S3': { token: 'tag.tag-$S2', switchTo: '@inlineScript.$S2', nextEmbedded: '$S3' },
+                                '@default': { token: 'tag.tag-$S2', switchTo: '@inlineScript.$S2', nextEmbedded: 'javascript', log: 'Entering JS section ($S2)' }
+                            }
+                        },
+                        '@default': { token: 'tag.tag-$S2', next: '@pop', log: 'Entering $S2 section' }
                     }
-                ],
-                [ /{{/, {
-                    token: "type.identifier", bracket: "@open",
-                    next: "@tmplRef_blk"
                 }],
-                [ /}}/, { token: "type.identifier", bracket: "@close", next: "@pop" } ],
-                [ /[^}}]+/, { token: "type.identifier" }]
             ],
-            pfnRef_blk: [
-                [ /\[\[/, {
-                    token: "string.quote", bracket: "@open",
-                    next: "@linkref_blk"
-                }],
-                [
-                    /{{#/, {
-                        token: "type.identifier", bracket: "@open",
-                        next: "@pfnRef_blk"
+            inlineStyle: [
+                [/<\/style\s*>/, { token: '@rematch', next: '@pop', nextEmbedded: '@pop', log: 'Pop stack ($S2)' }]
+            ],
+            inlineScript: [
+                [/<\/script\s*>/, { token: '@rematch', next: '@pop', nextEmbedded: '@pop', log: 'Pop stack ($S2)' }]
+            ],
+            // scan embedded strings in javascript or css
+            // string.<delimiter>
+            string: [
+                [/[^\\"']+/, 'string'],
+                [/@escapes/, 'string.escape'],
+                [/\\./, 'string.escape.invalid'],
+                [/["']/, {
+                    cases: {
+                        '$#==$S2': { token: 'string', next: '@pop' },
+                        '@default': 'string'
                     }
-                ],
-                [ /{{/, {
-                    token: "type.identifier", bracket: "@open",
-                    next: "@tmplRef_blk"
-                }],
-                [ /}}/, { token: "type.identifier", bracket: "@close", next: "@pop" } ],
-                [ /[^}}]+/, { token: "type.identifier" }]
+                }]
+            ],
+            whitespace: [
+                [/[ \t\r\n]+/, 'white'],
+                [/<!--/, 'comment', '@comment']
+            ],
+            comment: [
+                [/[^<\-]+/, 'comment.content'],
+                [/-->/, 'comment', '@pop'],
+                [/<!--/, 'comment.content.invalid'],
+                [/[<\-]/, 'comment.content']
             ]
         };
 

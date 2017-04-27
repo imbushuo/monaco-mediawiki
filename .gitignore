@@ -5,3 +5,5 @@ dist
 *.js.map
 bin
 obj
+/.vs
+/.vs
