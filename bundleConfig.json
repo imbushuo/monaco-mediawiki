@@ -13,7 +13,7 @@
   {
     "outputFileName": "release/LoaderBootstrap.min.js",
     "inputFiles": [
-        "LoaderBootstrap.js"
+      "LoaderBootstrap.js"
     ],
     "minify": {
       "enabled": true,
@@ -24,7 +24,7 @@
   {
     "outputFileName": "release/MonacoProxyStub.min.js",
     "inputFiles": [
-        "languageServices/MonacoProxyStub.js"
+      "languageServices/MonacoProxyStub.js"
     ],
     "minify": {
       "enabled": true,
@@ -34,7 +34,7 @@
   },
   {
     "outputFileName": "release/MediaWikiIntelliSense.min.js",
-    "inputFiles":[ 
+    "inputFiles": [
       "languageServices/MediaWikiIntelliSense.js"
     ],
     "minify": {
@@ -45,7 +45,7 @@
   },
   {
     "outputFileName": "release/LinkLinter.js",
-    "inputFiles":[
+    "inputFiles": [
       "languageServices/shared/Sections.js",
       "languageServices/shared/BlockEnvironment.js",
       "languageServices/shared/Match.js",
@@ -54,6 +54,17 @@
     "minify": {
       "enabled": true,
       "renameLocals": true
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "release/MediaWikiTokenizer.min.js",
+    "inputFiles": [
+      "languageServices/MediaWikiTokenizer.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": false
     },
     "sourceMap": true
   }

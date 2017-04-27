@@ -18,38 +18,41 @@ module MwMonacoExtension {
                 // Link reference
                 [ /\[\[/, {
                     token: "string.quote", bracket: "@open",
-                    next: "@linkref_blk"
+                    next: "@linkReferenceBlock"
                 }],
                 // Bold
                 [ /'''/, {
                     token: 'bold.quote', bracket: '@open', 
-                    next: '@bold_blk'
+                    next: '@boldBlock'
                 }],
                 // Italic
                 [ /''/, {
                     token: 'italic.quote', bracket: '@open',
-                    next: '@italic_blk'
+                    next: '@italicBlock'
                 }],
                 // HTML-Style blocks
-                [/<(\w+)\/>/, 'tag.tag-$1'],
-                [/<(\w+)/, {
+                [ /<(\w+)\/>/, 'tag.tag-$1'],
+                [ /<(\w+)/, {
                     cases: {
                         '@empty': { token: 'tag.tag-$1', next: '@tag.$1', log: 'Push stack to tag.$1' },
                         '@default': { token: 'tag.tag-$1', bracket: '@open', next: '@tag.$1', log: 'Push stack to tag.$1, bracket open' }
                     }
                 }],
-                [/<\/(\w+)\s*>/, { token: 'tag.tag-$1', bracket: '@close', log: 'Close bracket of tag.$1' }],
-                [/&\w+;/, 'string.escape']
+                [ /<\/(\w+)\s*>/, {
+                    token: 'tag.tag-$1', bracket: '@close',
+                    log: 'Close bracket of tag.$1'
+                }],
+                [ /&\w+;/, 'string.escape']
             ],
-            bold_blk: [
+            boldBlock: [
                 [ /'''/, { token: "bold.quote", bracket: "@close", next: "@pop" } ],
                 [ /[^''']+/, { token: "bold" } ]
             ],
-            italic_blk: [
+            italicBlock: [
                 [ /''/, { token: "italic.quote", bracket: "@close", next: "@pop" } ],
                 [ /[^'']+/, { token: "italic" } ]
             ],
-            linkref_blk: [
+            linkReferenceBlock: [
                 [ /\]\]/, { token: "string.quote", bracket: "@close", next: "@pop" } ],
                 [ /[^\]\]]+/, { token: "string" } ]
             ],
