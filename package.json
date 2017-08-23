@@ -7,7 +7,8 @@
     "url": "https://github.com/imbushuo/MwMonaco"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "buildDev": "SET NODE_ENV=development && webpack",
+    "buildProd": "SET NODE_ENV=production && webpack -p"
   },
   "keywords": [
     "monaco",
