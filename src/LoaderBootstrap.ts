@@ -18,7 +18,8 @@ import * as LoaderCore from "./MonacoLoader";
     $.getScript("https://imbushuos3.azureedge.net/Monaco/0.10.0-1/vs/loader.js", function (data, textStatus, jqxhr) {
 
         // Configure for language services
-        require.config({ paths: { 'vs': 'https://imbushuos3.azureedge.net/Monaco/0.10.0-1/vs' } });
+        // Workaround for webpack, see: https://github.com/Microsoft/monaco-editor/issues/18#issuecomment-261063117
+        (<any>window).require.config({ paths: { 'vs': 'https://imbushuos3.azureedge.net/Monaco/0.10.0-1/vs' } });
         (window as any).MonacoEnvironment = {
             getWorkerUrl: function (workerId, label) {
                 return '/User:imbushuo/MonacoProxyStub.js?action=raw&ctype=text/javascript';
@@ -29,7 +30,7 @@ import * as LoaderCore from "./MonacoLoader";
         console.info("Monaco loaded and environment has been configured.");
 
         // Load editor
-        require(['vs/editor/editor.main'], function () {
+        (<any>window).require(['vs/editor/editor.main'], function () {
             if (LoaderCore.MonacoLoader.determineAvailability()) {
                 const loader = new LoaderCore.MonacoLoader(document.getElementById("wpTextbox1") as HTMLTextAreaElement);
                 loader.initialize();

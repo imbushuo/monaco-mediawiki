@@ -1,6 +1,6 @@
 /// <reference path="../../../node_modules/monaco-editor/monaco.d.ts" />
 
-import shared = MwMonacoExtension.LanguageServices.Shared;
+import * as Data from './BlockEnvironment';
 
 export class LinkLinter implements monaco.IDisposable {
 
@@ -16,8 +16,8 @@ export class LinkLinter implements monaco.IDisposable {
     private static g_regExpLinkBlkEndIdentifier: RegExp = /\]\]/;
 
     private m_editorModel: monaco.editor.IModel;
-    private m_lastPopBlk: shared.ControlBlockEnvironment;
-    private m_stCtrlBlkEnv: shared.ControlBlockEnvironment[];
+    private m_lastPopBlk: Data.ControlBlockEnvironment;
+    private m_stCtrlBlkEnv: Data.ControlBlockEnvironment[];
     private m_validationMarkups: monaco.editor.IMarkerData[];
 
     // Input handle
@@ -26,7 +26,7 @@ export class LinkLinter implements monaco.IDisposable {
     /**
      * Get current linter stack state.
      */
-    private get currentState(): shared.ControlBlockEnvironment {
+    private get currentState(): Data.ControlBlockEnvironment {
         return (this.m_stCtrlBlkEnv) ? this.m_stCtrlBlkEnv[this.m_stCtrlBlkEnv.length - 1] : null;
     }
 
@@ -58,7 +58,7 @@ export class LinkLinter implements monaco.IDisposable {
      */
     validate(): void {
         // Clear state
-        let rootState: shared.ControlBlockEnvironment = new shared.ControlBlockEnvironment(false, 0);
+        let rootState: Data.ControlBlockEnvironment = new Data.ControlBlockEnvironment(false, 0);
         monaco.editor.setModelMarkers(this.m_editorModel, "LinkLinter", []);
         this.m_validationMarkups = [];
         this.m_stCtrlBlkEnv = [];
@@ -72,7 +72,7 @@ export class LinkLinter implements monaco.IDisposable {
             // Evalulate line.
             this.validateMatchInternal(lineContent, line, 0);
             // Sanity check.
-            if (this.currentState.lastOpenSection == shared.Sections.Link) {
+            if (this.currentState.lastOpenSection == Data.Sections.Link) {
                 this.m_validationMarkups.push({
                     code: "MW1004",
                     message: "Link reference block is not closed.",
@@ -107,10 +107,10 @@ export class LinkLinter implements monaco.IDisposable {
             let noOpMatches: RegExpMatchArray = null;
 
             switch (state.lastOpenSection) {
-                case shared.Sections.NoWiki:
+                case Data.Sections.NoWiki:
                     noOpMatches = input.match(LinkLinter.g_regExpNoOpNoWikiSectionEndIdentifier);
                     break;
-                case shared.Sections.Pre:
+                case Data.Sections.Pre:
                     noOpMatches = input.match(LinkLinter.g_regExpNoOpPreFormattedBlkEndIdentifier);
                     break;
             }
@@ -129,16 +129,16 @@ export class LinkLinter implements monaco.IDisposable {
 
             // Check link or no-op region
             // All links need to be completed in one line
-            const noOpNoWikiMatch = shared.Match.convertToMatch(input.match(LinkLinter.g_regExpNoOpNoWikiSectionBeginIdentifier));
-            const noOpPreMatch = shared.Match.convertToMatch(input.match(LinkLinter.g_regExpNoOpPreFormattedBlkBeginIdentifier));
-            const linkBeginBracketMatch = shared.Match.convertToMatch(input.match(LinkLinter.g_regExpLinkBlkBeginIdentifier));
-            const linkEndBracketMatch = shared.Match.convertToMatch(input.match(LinkLinter.g_regExpLinkBlkEndIdentifier));
+            const noOpNoWikiMatch = Data.Match.convertToMatch(input.match(LinkLinter.g_regExpNoOpNoWikiSectionBeginIdentifier));
+            const noOpPreMatch = Data.Match.convertToMatch(input.match(LinkLinter.g_regExpNoOpPreFormattedBlkBeginIdentifier));
+            const linkBeginBracketMatch = Data.Match.convertToMatch(input.match(LinkLinter.g_regExpLinkBlkBeginIdentifier));
+            const linkEndBracketMatch = Data.Match.convertToMatch(input.match(LinkLinter.g_regExpLinkBlkEndIdentifier));
 
-            const matches: [number, shared.Match, shared.Sections][] = [];
-            if (noOpNoWikiMatch.success) matches.push([noOpNoWikiMatch.index, noOpNoWikiMatch, shared.Sections.NoWiki]);
-            if (noOpPreMatch.success) matches.push([noOpPreMatch.index, noOpPreMatch, shared.Sections.Pre]);
-            if (linkBeginBracketMatch.success) matches.push([linkBeginBracketMatch.index, linkBeginBracketMatch, shared.Sections.Link]);
-            if (linkEndBracketMatch.success) matches.push([linkEndBracketMatch.index, linkEndBracketMatch, shared.Sections.LinkEnd]);
+            const matches: [number, Data.Match, Data.Sections][] = [];
+            if (noOpNoWikiMatch.success) matches.push([noOpNoWikiMatch.index, noOpNoWikiMatch, Data.Sections.NoWiki]);
+            if (noOpPreMatch.success) matches.push([noOpPreMatch.index, noOpPreMatch, Data.Sections.Pre]);
+            if (linkBeginBracketMatch.success) matches.push([linkBeginBracketMatch.index, linkBeginBracketMatch, Data.Sections.Link]);
+            if (linkEndBracketMatch.success) matches.push([linkEndBracketMatch.index, linkEndBracketMatch, Data.Sections.LinkEnd]);
 
             // Sort it
             matches.sort((a, b) => (a[0] - b[0]));
@@ -146,18 +146,18 @@ export class LinkLinter implements monaco.IDisposable {
             // Take the first one, and exit if not captured
             if (matches.length < 1) return;
             var fMatch = matches[0];
-            let newEnv: shared.ControlBlockEnvironment = null;
+            let newEnv: Data.ControlBlockEnvironment = null;
             switch (fMatch[2]) {
-                case shared.Sections.NoWiki:
-                case shared.Sections.Pre:
+                case Data.Sections.NoWiki:
+                case Data.Sections.Pre:
                     // No-op region: Push environment block and carry on
-                    newEnv = new shared.ControlBlockEnvironment(
+                    newEnv = new Data.ControlBlockEnvironment(
                         true, state.depth + 1, fMatch[2],
                         line, fMatch[1].index + fMatch[1].length + column);
                     break;
-                case shared.Sections.Link:
+                case Data.Sections.Link:
                     // Link region: Push limited env block and carry on
-                    if (state.lastOpenSection == shared.Sections.Link) {
+                    if (state.lastOpenSection == Data.Sections.Link) {
                         this.m_validationMarkups.push({
                             severity: monaco.Severity.Error,
                             startLineNumber: line,
@@ -171,13 +171,13 @@ export class LinkLinter implements monaco.IDisposable {
                         });
                         return;
                     }
-                    newEnv = new shared.ControlBlockEnvironment(
+                    newEnv = new Data.ControlBlockEnvironment(
                         false, state.depth + 1, fMatch[2],
                         line, fMatch[1].index + fMatch[1].length + column
                     );
                     break;
-                case shared.Sections.LinkEnd:
-                    if (state.lastOpenSection == shared.Sections.Link) this.m_lastPopBlk = this.m_stCtrlBlkEnv.pop();
+                case Data.Sections.LinkEnd:
+                    if (state.lastOpenSection == Data.Sections.Link) this.m_lastPopBlk = this.m_stCtrlBlkEnv.pop();
                     break;
             }
 
