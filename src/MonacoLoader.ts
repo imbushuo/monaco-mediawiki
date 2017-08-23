@@ -187,6 +187,9 @@ export class MonacoLoader {
                             return [];
                         }
                     });
+
+                    // Notify completion.
+                    complete(true);
                     break;
                 default:
                     complete(true);
@@ -315,9 +318,8 @@ export class MonacoLoader {
                         { token: 'bold.quote', fontStyle: 'bold' },
                         { token: 'italic', fontStyle: 'italic' },
                         { token: 'italic.quote', fontStyle: 'italic' }
-                    ],
-                    colors: {}
-                });
+                    ]
+                } as monaco.editor.IStandaloneThemeData);
 
                 this.m_editorControl = monaco.editor.create(this.m_hostControl, {
                     value: this.m_textAreaControl.value,
