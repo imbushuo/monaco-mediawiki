@@ -43,9 +43,5 @@ module.exports = {
     ],
     resolve: {
         extensions: ['.ts', '.js', '.json']
-    },
-    externals: {
-        "monaco-editor": "monaco-editor",
-        "vs/editor/editor.main": "monaco-editor"
     }
 };

@@ -43,8 +43,5 @@ module.exports = {
     ],
     resolve: {
         extensions: ['.ts', '.js', '.json']
-    },
-    externals: {
-        "vs/editor/editor.main": "vs/editor/editor.main"
     }
 };
