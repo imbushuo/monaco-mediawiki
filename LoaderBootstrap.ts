@@ -24,10 +24,10 @@
 (function (){
 
     if ((window as any).monacoLoader) return;
-    $.getScript("https://imbushuos3.azureedge.net/Snippets/Monaco/vs/loader.js", function (data, textStatus, jqxhr) {
+    $.getScript("https://imbushuos3.azureedge.net/Monaco/0.10.0-1/vs/loader.js", function (data, textStatus, jqxhr) {
 
         // Configure for language services
-        require.config({ paths: { 'vs': 'https://imbushuos3.azureedge.net/Snippets/Monaco/vs' } });
+        require.config({ paths: { 'vs': 'https://imbushuos3.azureedge.net/Monaco/0.10.0-1/vs' } });
         (window as any).MonacoEnvironment = {
             getWorkerUrl: function (workerId, label) {
                 return '/User:imbushuo/MonacoProxyStub.js?action=raw&ctype=text/javascript';

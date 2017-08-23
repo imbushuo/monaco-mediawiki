@@ -6,4 +6,4 @@ dist
 bin
 obj
 /.vs
-/.vs
+/package-lock.json
