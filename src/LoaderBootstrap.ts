@@ -6,19 +6,7 @@
  * Copyright (c) 2017 The Little Moe New LLC.
  * 
  * Beta technology - no warranty
- * 
- * Note: You might want to disable all advanced editor features in order to let it work properly.
- * I haven't tested the compatibility with the original MediaWiki editor.
- * 备注：您可能需要禁用所有 MediaWiki 编辑器功能以让这个编辑器正常工作。
- * 作者尚未测试和 MediaWiki 别的高级编辑器功能的兼容性。
- * 
- * 用法：在用户页 JavaScript 里插入 mw.loader.load('https://zh.moegirl.org/User:Imbushuo/MonacoEditor.js?action=raw&ctype=text/javascript'); 即可。
- * 
- * Usage: 
- * Add this code snippet to your user script:
- * mw.loader.load('https://zh.moegirl.org/User:Imbushuo/MonacoEditor.js?action=raw&ctype=text/javascript');
- * 
- * 
+ *
  */
 
 import * as LoaderCore from "./MonacoLoader";
