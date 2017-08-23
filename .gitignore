@@ -1,8 +1,6 @@
 node_modules
 release
 dist
-*.js
-*.js.map
 /bin
 /obj
 /.vs

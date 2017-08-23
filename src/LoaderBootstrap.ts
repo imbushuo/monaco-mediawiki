@@ -21,9 +21,12 @@
  * 
  */
 
+import * as LoaderCore from "./MonacoLoader";
+
 (function (){
 
     if ((window as any).monacoLoader) return;
+
     $.getScript("https://imbushuos3.azureedge.net/Monaco/0.10.0-1/vs/loader.js", function (data, textStatus, jqxhr) {
 
         // Configure for language services
@@ -39,13 +42,11 @@
 
         // Load editor
         require(['vs/editor/editor.main'], function () {
-            $.getScript("/User:imbushuo/MonacoLoader.js?action=raw&ctype=text/javascript", function (data, textStatus, jqxhr) {
-                if (MwMonaco.MonacoLoader.determineAvailability()) {
-                    const loader = new MwMonaco.MonacoLoader(document.getElementById("wpTextbox1") as HTMLTextAreaElement);
-                    loader.initialize();
-                    (window as any).monacoLoader = loader;
-                }
-            });
+            if (LoaderCore.MonacoLoader.determineAvailability()) {
+                const loader = new LoaderCore.MonacoLoader(document.getElementById("wpTextbox1") as HTMLTextAreaElement);
+                loader.initialize();
+                (window as any).monacoLoader = loader;
+            }
         });
     });
 
