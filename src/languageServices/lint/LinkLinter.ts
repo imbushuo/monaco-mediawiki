@@ -1,3 +1,5 @@
+/// <reference path="../../../node_modules/monaco-editor/monaco.d.ts" />
+
 module MwMonacoExtension.LanguageServices {
 
     import shared = MwMonacoExtension.LanguageServices.Shared;

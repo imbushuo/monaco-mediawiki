@@ -1,3 +1,6 @@
+/// <reference path="../node_modules/monaco-editor/monaco.d.ts" />
+/// <reference path="../lib/mediawiki/mediawiki.d.ts" />
+
 module MwMonaco {
 
     /**
@@ -315,7 +318,8 @@ module MwMonaco {
                             { token: 'bold.quote', fontStyle: 'bold' },
                             { token: 'italic', fontStyle: 'italic' },
                             { token: 'italic.quote', fontStyle: 'italic' }
-                        ]
+                        ],
+                        colors: {}
                     });
                     
                     this.m_editorControl = monaco.editor.create(this.m_hostControl, {
@@ -324,8 +328,9 @@ module MwMonaco {
                         theme: "localTheme",
                         fontFamily: this.getFontFamily(),
                         automaticLayout: true,
-                        // Enable word wrap for wikitext currently
-                        wordWrap: this.m_docType === "mediawiki"
+                        // Enable word wrap for Wikitext, and restricted word wrap for others
+                        wordWrap: (this.m_docType === "mediawiki") ? "on" : "wordWrapColumn",
+                        folding: true
                     });
 
                     // Save content every 5 seconds
@@ -366,8 +371,9 @@ module MwMonaco {
                     fontFamily: this.getFontFamily(),
                     automaticLayout: true,
                     theme: "localTheme",
-                    // Enable word wrap for wikitext currently
-                    wordWrap: this.m_docType === "mediawiki"
+                    // Enable word wrap for Wikitext, and restricted word wrap for others
+                    wordWrap: (this.m_docType === "mediawiki") ? "on" : "wordWrapColumn",
+                    folding: true
                 });
                 this.m_diffEditorControl.setModel({
                     original: monaco.editor.createModel(this.m_originalContent, this.m_docType),

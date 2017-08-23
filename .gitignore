@@ -3,7 +3,7 @@ release
 dist
 *.js
 *.js.map
-bin
-obj
+/bin
+/obj
 /.vs
 /package-lock.json

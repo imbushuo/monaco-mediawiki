@@ -1,3 +1,6 @@
+/// <reference path="../../node_modules/monaco-editor/monaco.d.ts" />
+/// <reference path="../../lib/mediawiki/mediawiki.d.ts" />
+
 module MwMonacoExtension {
 
     export class TitleAutoCompletionSource implements ICompletionSource {

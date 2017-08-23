@@ -1,3 +1,5 @@
+/// <reference path="../../node_modules/monaco-editor/monaco.d.ts" />
+
 module MwMonacoExtension {
 
     export class MediaWikiTokenizer implements monaco.languages.IMonarchLanguage {
@@ -12,7 +14,7 @@ module MwMonacoExtension {
         // escape codes for javascript/CSS strings
         escapes: RegExp = /\\(?:[btnfr\\"']|[0-7][0-7]?|[0-3][0-7]{2})/;
 
-        tokenizer: { [name: string]: monaco.languages.IMonarchLanguageRule[]; } = {
+        tokenizer: { [name: string]: monaco.languages.IMonarchLanguageRule[] | any[]; } = {
             root: [
                 { include: '@whitespace' },
                 // Link reference
