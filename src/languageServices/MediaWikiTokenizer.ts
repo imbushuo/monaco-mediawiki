@@ -17,18 +17,19 @@ export class MediaWikiTokenizer implements monaco.languages.IMonarchLanguage {
             { include: '@whitespace' },
             // Link reference
             [/\[\[/, {
-                token: "string.quote", bracket: "@open",
-                next: "@linkReferenceBlock"
+                token: 'string.quote', bracket: '@open', next: '@linkReferenceBlock'
+            }],
+            // Template usage
+            [/{{/, {
+                token: 'type.identifier', bracket: '@open', next: '@templateBlock'
             }],
             // Bold
             [/'''/, {
-                token: 'bold.quote', bracket: '@open',
-                next: '@boldBlock'
+                token: 'bold.quote', bracket: '@open', next: '@boldBlock'
             }],
             // Italic
             [/''/, {
-                token: 'italic.quote', bracket: '@open',
-                next: '@italicBlock'
+                token: 'italic.quote', bracket: '@open', next: '@italicBlock'
             }],
             // HTML-Style blocks
             [/<(\w+)\/>/, 'tag.tag-$1'],
@@ -39,14 +40,15 @@ export class MediaWikiTokenizer implements monaco.languages.IMonarchLanguage {
                 }
             }],
             [/<\/(\w+)\s*>/, {
-                token: 'tag.tag-$1', bracket: '@close',
-                log: 'Close bracket of tag.$1'
+                token: 'tag.tag-$1', bracket: '@close', log: 'Close bracket of tag.$1'
             }],
             [/&\w+;/, 'string.escape']
         ],
         boldBlock: [
-            [/'''/, { token: "bold.quote", bracket: "@close", next: "@pop" }],
-            [/[^''']+/, { token: "bold" }]
+            [/'''/, { token: 'bold.quote', bracket: '@close', next: '@pop' }],
+            [/[^''']+/, { token: 'bold' }],
+            // Nested italic + bold, need a style to present both
+            [/''/, { token: "italic.quote", bracket: "@open", next: "@italicBlock" }]
         ],
         italicBlock: [
             [/''/, { token: "italic.quote", bracket: "@close", next: "@pop" }],
@@ -55,6 +57,10 @@ export class MediaWikiTokenizer implements monaco.languages.IMonarchLanguage {
         linkReferenceBlock: [
             [/\]\]/, { token: "string.quote", bracket: "@close", next: "@pop" }],
             [/[^\]\]]+/, { token: "string" }]
+        ],
+        templateBlock: [
+            [/}}/, { token: 'type.identifier', bracket: '@close', next: '@pop' }],
+            [/[^}}]+/, { token: 'type' }]
         ],
         // Tags
         tag: [

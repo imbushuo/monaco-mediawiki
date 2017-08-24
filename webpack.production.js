@@ -7,7 +7,6 @@ const StatsWriterPlugin = require("webpack-stats-plugin").StatsWriterPlugin;
 module.exports = {
     context: path.join(__dirname, 'src'),
     entry: {
-        'MonacoLoader.min': './MonacoLoader.ts',
         'LoaderBootstrap.min': './LoaderBootstrap.ts'
     },
     devtool: "source-map",

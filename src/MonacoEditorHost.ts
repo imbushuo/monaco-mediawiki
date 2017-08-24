@@ -7,9 +7,9 @@ import * as Configuration from "./configuration/UserConfiguration";
 import * as Linter from "./languageServices/lint/LinkLinter";
 
 /**
-* Loader for Monaco editor.
+* Host component of Monaco editor on MediaWiki.
 */
-export class MonacoLoader {
+export class MonacoEditorHost {
 
     /**
      * A dictionary that contains prefix mapping.
@@ -84,7 +84,7 @@ export class MonacoLoader {
      * Determine the availbility of Monaco loader.
      * @returns {boolean} Value indicates whether the editor can be loaded.
      */
-    static determineAvailability(): boolean {
+    static get isAvailable(): boolean {
         if (!document.getElementById("wpTextbox1")) return false;
         // TODO: Stop loading if other editor is detected
         return true;
@@ -105,10 +105,10 @@ export class MonacoLoader {
                     this.m_docExtension = currentTitle.substring(lastDotPos);
                     this.m_title = currentTitle;
 
-                    if (MonacoLoader.g_prefixMapping[this.m_docPrefix]) {
-                        complete(MonacoLoader.g_prefixMapping[this.m_docPrefix]);
-                    } else if (MonacoLoader.g_extMapping[this.m_docExtension]) {
-                        complete(MonacoLoader.g_extMapping[this.m_docExtension]);
+                    if (MonacoEditorHost.g_prefixMapping[this.m_docPrefix]) {
+                        complete(MonacoEditorHost.g_prefixMapping[this.m_docPrefix]);
+                    } else if (MonacoEditorHost.g_extMapping[this.m_docExtension]) {
+                        complete(MonacoEditorHost.g_extMapping[this.m_docExtension]);
                     } else {
                         complete("mediawiki");
                     }
@@ -151,7 +151,7 @@ export class MonacoLoader {
                 case "typescript":
                     console.info("Loading references for script editor.");
                     let xhrPromises: monaco.Promise<ILibraryModule>[] = [];
-                    MonacoLoader.g_commonLibraries.forEach(module => xhrPromises.push(this.createLibraryXhrPromise(module)));
+                    MonacoEditorHost.g_commonLibraries.forEach(module => xhrPromises.push(this.createLibraryXhrPromise(module)));
                     monaco.Promise.join(xhrPromises).then((modules: ILibraryModule[]) => {
                         modules.forEach(module => {
                             console.info(`Loaded module ${module.fileName}.`);
@@ -304,7 +304,7 @@ export class MonacoLoader {
      * Initialize editor control.
      */
     initialize(): void {
-        if (!MonacoLoader.determineAvailability()) return;
+        if (!MonacoEditorHost.isAvailable) return;
         this.checkTitleExtensionAsync().then((docType: string) => {
             this.m_docType = docType;
             this.m_hostControl = this.createEditorHost();
