@@ -16,21 +16,14 @@ export class MediaWikiTokenizer implements monaco.languages.IMonarchLanguage {
         root: [
             { include: '@whitespace' },
             // Link reference
-            [/\[\[/, {
-                token: 'string.quote', bracket: '@open', next: '@linkReferenceBlock'
-            }],
+            [/\[\[/, { token: 'string.quote', bracket: '@open', next: '@linkReferenceBlock' }],
             // Template usage
-            [/{{/, {
-                token: 'type.identifier', bracket: '@open', next: '@templateBlock'
-            }],
+            [/{{/, { token: 'type.type-$1', bracket: '@open', next: '@templateBlock.$1' }],
+            [/}}/, { token: 'type.type-$1', bracket: '@close' }],
             // Bold
-            [/'''/, {
-                token: 'bold.quote', bracket: '@open', next: '@boldBlock'
-            }],
+            [/'''/, { token: 'bold.quote', bracket: '@open', next: '@boldBlock' }],
             // Italic
-            [/''/, {
-                token: 'italic.quote', bracket: '@open', next: '@italicBlock'
-            }],
+            [/''/, { token: 'italic.quote', bracket: '@open', next: '@italicBlock' }],
             // HTML-Style blocks
             [/<(\w+)\/>/, 'tag.tag-$1'],
             [/<(\w+)/, {
@@ -39,9 +32,7 @@ export class MediaWikiTokenizer implements monaco.languages.IMonarchLanguage {
                     '@default': { token: 'tag.tag-$1', bracket: '@open', next: '@tag.$1', log: 'Push stack to tag.$1, bracket open' }
                 }
             }],
-            [/<\/(\w+)\s*>/, {
-                token: 'tag.tag-$1', bracket: '@close', log: 'Close bracket of tag.$1'
-            }],
+            [/<\/(\w+)\s*>/, { token: 'tag.tag-$1', bracket: '@close', log: 'Close bracket of tag.$1' }],
             [/&\w+;/, 'string.escape']
         ],
         boldBlock: [
@@ -59,8 +50,11 @@ export class MediaWikiTokenizer implements monaco.languages.IMonarchLanguage {
             [/[^\]\]]+/, { token: "string" }]
         ],
         templateBlock: [
-            [/}}/, { token: 'type.identifier', bracket: '@close', next: '@pop' }],
-            [/[^}}]+/, { token: 'type' }]
+            [/{{/, { token: 'type.type-$1', bracket: '@open', next: '@templateBlock.$1' }],
+            [/}}/, { token: 'type.type-$2', next: '@pop' }],
+            [/\[\[/, { token: 'string.quote', bracket: '@open', next: '@linkReferenceBlock' }],
+            [/'''/, { token: 'bold.quote', bracket: '@open', next: '@boldBlock' }],
+            [/''/, { token: 'italic.quote', bracket: '@open', next: '@italicBlock' }]
         ],
         // Tags
         tag: [
